@@ -1,5 +1,5 @@
 #! /usr/bin/env sh
-LOG="$(date "+[%Y-%m-%d %T %z] [entrypoint] [INFO]")"
+LOG="$(date '+[%Y-%m-%d %T %z] [entrypoint] [INFO]')"
 
 if [ -z $ENVIRONMENT ] || [ "$ENVIRONMENT" = "dev" ]; then
     ENVIRONMENT="dev"
