@@ -8,7 +8,7 @@ substrate = SubstrateInterface(
     type_registry=load_type_registry_file('../harvester/app/type_registry/custom_types.json'),
 )
 
-block_hash = substrate.get_block_hash(block_id=1705460)
+block_hash = substrate.get_block_hash(block_id=3032585)
 
 extrinsics = substrate.get_block(block_hash=block_hash)['extrinsics']
 
