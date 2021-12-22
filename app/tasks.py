@@ -117,7 +117,15 @@ def accumulate_block_recursive(self, block_hash, end_block_hash=None):
         for nr in range(0, 10):
             if not block or block.id > 0:
                 # Process block
-                block = harvester.add_block(block_hash)
+                try:
+                    block = harvester.add_block(block_hash)
+                except:
+                    harvester = PolkascanHarvesterService(
+                            db_session=self.session,
+                            type_registry=TYPE_REGISTRY,
+                            type_registry_file=TYPE_REGISTRY_FILE + '-mst'
+                        )
+                    block = harvester.add_block(block_hash)
 
                 print('+ Added {} '.format(block_hash))
 
@@ -308,7 +316,7 @@ def rebuild_account_info_snapshot(self):
     # set balances according to most recent snapshot
     account_info = self.session.execute("""
             select
-               a.account_id, 
+               a.account_id,
                a.balance_total,
                a.balance_free,
                a.balance_reserved,
@@ -316,9 +324,9 @@ def rebuild_account_info_snapshot(self):
         from
              data_account_info_snapshot as a
         inner join (
-            select 
-                account_id, max(block_id) as max_block_id 
-            from data_account_info_snapshot 
+            select
+                account_id, max(block_id) as max_block_id
+            from data_account_info_snapshot
             group by account_id
         ) as b
         on a.account_id = b.account_id and a.block_id = b.max_block_id

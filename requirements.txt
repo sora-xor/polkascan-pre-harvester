@@ -48,3 +48,5 @@ py-bip39-bindings>=0.1.6
 
 scalecodec>=0.10.62
 substrate-interface>=0.11.18
+
+ed25519>=1.5
