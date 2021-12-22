@@ -1630,6 +1630,8 @@
               "Null"
             ],
             [
+              "LiquidityKeeper",
+              "TradingPair"
               "FeeCollectorForPair",
               "TechTradingPair"
             ],
