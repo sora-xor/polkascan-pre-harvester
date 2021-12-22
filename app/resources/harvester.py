@@ -202,6 +202,61 @@ class PolkascanProcessBlockResource(BaseResource):
             resp.media = {'result': 'Block not found'}
 
 
+class PolkascanProcessMSTBlockResource(BaseResource):
+
+    def on_post(self, req, resp):
+
+        block_hash = None
+
+        if req.media.get('block_id'):
+            substrate = SubstrateInterface(
+                url=SUBSTRATE_RPC_URL,
+                runtime_config=RuntimeConfiguration(),
+                type_registry_preset=settings.TYPE_REGISTRY
+            )
+            block_hash = substrate.get_block_hash(req.media.get('block_id'))
+        elif req.media.get('block_hash'):
+            block_hash = req.media.get('block_hash')
+        else:
+            resp.status = falcon.HTTP_BAD_REQUEST
+            resp.media = {'errors': ['Either block_hash or block_id should be supplied']}
+
+        if block_hash:
+            print('Processing {} ...'.format(block_hash))
+            harvester = PolkascanHarvesterService(
+                db_session=self.session,
+                type_registry=TYPE_REGISTRY,
+                type_registry_file=TYPE_REGISTRY_FILE + '-mst'
+            )
+
+            block = Block.query(self.session).filter(Block.hash == block_hash).first()
+
+            if block:
+                resp.status = falcon.HTTP_200
+                resp.media = {'result': 'already exists', 'parentHash': block.parent_hash}
+            else:
+
+                amount = req.media.get('amount', 1)
+
+                for nr in range(0, amount):
+                    try:
+                        block = harvester.add_block(block_hash)
+                    except BlockAlreadyAdded as e:
+                        print('Skipping {}'.format(block_hash))
+                    block_hash = block.parent_hash
+                    if block.id == 0:
+                        break
+
+                self.session.commit()
+
+                resp.status = falcon.HTTP_201
+                resp.media = {'result': 'added', 'parentHash': block.parent_hash}
+
+        else:
+            resp.status = falcon.HTTP_404
+            resp.media = {'result': 'Block not found'}
+
+
 class SequenceBlockResource(BaseResource):
 
     def on_post(self, req, resp):
