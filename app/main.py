@@ -29,7 +29,7 @@ from app.middleware.context import ContextMiddleware
 from app.middleware.sessionmanager import SQLAlchemySessionManager
 
 from app.resources.harvester import PolkascanStartHarvesterResource, PolkascanStopHarvesterResource, \
-    PolkascanHarvesterStatusResource, PolkascanProcessBlockResource, \
+    PolkascanHarvesterStatusResource, PolkascanProcessBlockResource, PolkascanProcessMSTBlockResource, \
     PolkaScanCheckHarvesterTaskResource, SequenceBlockResource, StartSequenceBlockResource, StartIntegrityResource, \
     RebuildSearchIndexResource, ProcessGenesisBlockResource, PolkascanHarvesterQueueResource, RebuildAccountInfoResource
 from app.resources.tools import ExtractMetadataResource, ExtractExtrinsicsResource, \
@@ -50,6 +50,7 @@ app.add_route('/stop', PolkascanStopHarvesterResource())
 app.add_route('/status', PolkascanHarvesterStatusResource())
 app.add_route('/queue', PolkascanHarvesterQueueResource())
 app.add_route('/process', PolkascanProcessBlockResource())
+app.add_route('/process-mst', PolkascanProcessMSTBlockResource())
 app.add_route('/sequence', SequenceBlockResource())
 app.add_route('/sequencer/start', StartSequenceBlockResource())
 app.add_route('/integrity-check', StartIntegrityResource())
