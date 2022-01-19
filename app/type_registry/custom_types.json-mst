@@ -1,5 +1,5 @@
 {
-  "runtime_id": 19,
+  "runtime_id": 21,
   "versioning": [
     {
       "runtime_range": [
@@ -1630,8 +1630,12 @@
               "Null"
             ],
             [
+              "FeeCollectorForPair",
+              "TechTradingPair"
+            ],
+            [
               "LiquidityKeeper",
-              "TradingPair"
+              "TechTradingPair"
               "FeeCollectorForPair",
               "TechTradingPair"
             ],
