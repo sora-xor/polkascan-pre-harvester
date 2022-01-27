@@ -1390,9 +1390,9 @@ class AssetsAssetRegisteredEventProcessor(EventProcessor):
             data_asset = Asset(
                 asset_id=self.event.attributes[0]['value'],
                 symbol=extrinsic.params[0]['value'],
-                precision=18, #TODO may be changed
+                precision=0 if extrinsic.params[4]['value'] else 18, #TODO may be changed
                 name=extrinsic.params[1]['value'],
-                is_mintable=True if extrinsic.params[3]['value'] == 'true' else False
+                is_mintable=True if extrinsic.params[3]['value'] else False
             )
             existing_assset = Asset.query(db_session).filter(Asset.asset_id == data_asset.asset_id).first()
             if not existing_assset:
