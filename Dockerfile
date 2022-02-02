@@ -1,18 +1,18 @@
 # base image
 FROM python:3.8-buster
+RUN useradd -ms /bin/bash app
+USER app
 ENV PYTHONUNBUFFERED 1
 
 # set working directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-
-RUN pip3 install --upgrade pip
+WORKDIR /home/app
+ENV PATH="/home/app/.local/bin:${PATH}"
 
 # add requirements
-COPY ./requirements.txt /usr/src/app/requirements.txt
+COPY --chown=app:app requirements.txt /home/app/requirements.txt
 
 # install requirements
-RUN pip3 install -r requirements.txt
+RUN pip3 install --upgrade pip && pip3 install --user -r requirements.txt
 
 # add app
-COPY . /usr/src/app
+COPY . /home/app
