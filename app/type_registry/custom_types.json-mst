@@ -1,5 +1,5 @@
 {
-  "runtime_id": 25,
+  "runtime_id": 23,
   "versioning": [
     {
       "runtime_range": [
@@ -1770,6 +1770,11 @@
             ],
             [
               "LiquidityKeeper",
+              "FeeCollectorForPair",
+              "TechTradingPair"
+            ],
+            [
+              "LiquidityKeeper",
               "TechTradingPair"
             ],
             [
@@ -1822,6 +1827,19 @@
           ]
         },
         "ValidationFunction": "Null",
+        "Timepoint": {
+          "type": "struct",
+          "type_mapping": [
+            [
+              "height",
+              "BlockNumber"
+            ],
+            [
+              "index",
+              "u32"
+            ]
+          ]
+        },
         "BTreeMap<RewardReason,Balance>": "Vec<(RewardReason,Balance)>",
         "BTreeSet<SignatureParams>": "Vec<SignatureParams>",
         "BTreeSet<H256>": "Vec<H256>",
@@ -1947,6 +1965,10 @@
     [
       3450465,
       22
+    ],
+    [
+      3643432,
+      23
     ],
     [
       3643432,
