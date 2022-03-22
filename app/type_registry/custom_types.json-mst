@@ -1770,7 +1770,6 @@
             ],
             [
               "LiquidityKeeper",
-              "TechTradingPair"
               "FeeCollectorForPair",
               "TechTradingPair"
             ],
