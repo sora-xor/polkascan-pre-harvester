@@ -26,7 +26,7 @@ from app.resources.base import BaseResource
 
 from scalecodec.base import ScaleBytes, RuntimeConfiguration
 from scalecodec.metadata import MetadataDecoder
-from scalecodec.block import EventsDecoder, ExtrinsicsDecoder
+from scalecodec.types import GenericEvent, GenericExtrinsic
 
 from substrateinterface import SubstrateInterface
 from app.settings import SUBSTRATE_RPC_URL, SUBSTRATE_METADATA_VERSION

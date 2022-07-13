@@ -35,7 +35,7 @@ from app.utils.ss58 import ss58_encode, ss58_encode_account_index
 from scalecodec.base import ScaleBytes, RuntimeConfiguration
 
 from app.processors.base import BlockProcessor
-from scalecodec.block import LogDigest
+from scalecodec.types import LogDigest
 
 
 class LogBlockProcessor(BlockProcessor):

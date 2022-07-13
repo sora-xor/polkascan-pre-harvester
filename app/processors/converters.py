@@ -28,9 +28,9 @@ from sqlalchemy import func, distinct
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.harvester import Status
 from app.processors import NewSessionEventProcessor, Log, SlashEventProcessor, BalancesTransferProcessor
+from scalecodec.types import GenericExtrinsic
 from scalecodec.base import ScaleBytes, ScaleDecoder, RuntimeConfiguration
 from scalecodec.exceptions import RemainingScaleBytesNotEmptyException
-from scalecodec.block import ExtrinsicsDecoder
 
 from app.processors.base import BaseService, ProcessorRegistry
 from scalecodec.type_registry import load_type_registry_file
@@ -631,7 +631,7 @@ class PolkascanHarvesterService(BaseService):
 
         for extrinsic in extrinsics_data:
 
-            extrinsics_decoder = ExtrinsicsDecoder(
+            extrinsics_decoder = GenericExtrinsic(
                 data=ScaleBytes(extrinsic),
                 metadata=self.metadata_store[parent_spec_version]
             )
