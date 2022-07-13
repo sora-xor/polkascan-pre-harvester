@@ -98,11 +98,8 @@ class ExtractEventsResource(BaseResource):
         # Get Parent hash
         json_block = substrate.get_block_header(req.params.get('block_hash'))
 
-        # Get metadata
-        metadata_decoder = substrate.get_block_metadata(json_block['parentHash'])
-
         # Get events for block hash
-        events_decoder = substrate.get_events(req.params.get('block_hash'), metadata_decoder=metadata_decoder)
+        events_decoder = substrate.get_events(req.params.get('block_hash'))
 
         resp.status = falcon.HTTP_201
         resp.media = {'events': events_decoder.value, 'runtime': substrate.get_block_runtime_version(req.params.get('block_hash'))}
