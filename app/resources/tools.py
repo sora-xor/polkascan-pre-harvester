@@ -25,8 +25,7 @@ from app.processors.converters import PolkascanHarvesterService
 from app.resources.base import BaseResource
 
 from scalecodec.base import ScaleBytes, RuntimeConfiguration
-from scalecodec.metadata import MetadataDecoder
-from scalecodec.types import GenericEvent, GenericExtrinsic
+from scalecodec.types import GenericEvent, GenericExtrinsic, GenericMetadataAll
 
 from substrateinterface import SubstrateInterface
 from app.settings import SUBSTRATE_RPC_URL, SUBSTRATE_METADATA_VERSION
@@ -51,7 +50,7 @@ class ExtractMetadataResource(BaseResource):
             resp.status = falcon.HTTP_BAD_REQUEST
 
     def on_post(self, req, resp):
-        metadata = MetadataDecoder(ScaleBytes(req.media.get('result')))
+        metadata = GenericMetadataAll(ScaleBytes(req.media.get('result')))
 
         resp.status = falcon.HTTP_200
         resp.media = metadata.process()
@@ -81,7 +80,7 @@ class ExtractExtrinsicsResource(BaseResource):
             result = []
 
             for extrinsic in extrinsics:
-                extrinsics_decoder = ExtrinsicsDecoder(ScaleBytes(extrinsic), metadata=metadata_decoder)
+                extrinsics_decoder = GenericExtrinsic(ScaleBytes(extrinsic), metadata=metadata_decoder)
                 result.append(extrinsics_decoder.decode())
 
             resp.status = falcon.HTTP_201
@@ -103,7 +102,7 @@ class ExtractEventsResource(BaseResource):
         metadata_decoder = substrate.get_block_metadata(json_block['parentHash'])
 
         # Get events for block hash
-        events_decoder = substrate.get_block_events(req.params.get('block_hash'), metadata_decoder=metadata_decoder)
+        events_decoder = substrate.get_events(req.params.get('block_hash'), metadata_decoder=metadata_decoder)
 
         resp.status = falcon.HTTP_201
         resp.media = {'events': events_decoder.value, 'runtime': substrate.get_block_runtime_version(req.params.get('block_hash'))}
