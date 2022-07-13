@@ -566,7 +566,6 @@ class PolkascanHarvesterService(BaseService):
             for event in events:
 
                 event.value['module_id'] = event.value['module_id'].lower()
-                assert False, list(event.value.keys())
                 model = Event(
                     block_id=block_id,
                     event_idx=event_idx,
@@ -578,7 +577,7 @@ class PolkascanHarvesterService(BaseService):
                     event_id=event.value['event_id'],
                     system=int(event.value['module_id'] == 'system'),
                     module=int(event.value['module_id'] != 'system'),
-                    attributes=event.value['params'],
+                    attributes=event.value['attributes'],
                     codec_error=False
                 )
 
