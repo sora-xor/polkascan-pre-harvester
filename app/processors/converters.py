@@ -564,7 +564,7 @@ class PolkascanHarvesterService(BaseService):
             event_idx = 0
 
             for event in events:
-
+                assert False, '%s %s %s' % (type(event), event, list(event.value.items()))
                 event.value['module_id'] = event.value['module_id'].lower()
                 model = Event(
                     block_id=block_id,
