@@ -564,6 +564,10 @@ class PolkascanHarvesterService(BaseService):
             event_idx = 0
 
             for event in events:
+                try:
+                    print(event.value['phase'])
+                except Exception:
+                    assert False, event
                 if event.value['phase'] == 'ApplyExtrinsic':
                     event.value['phase'] = 0
                 elif event.value['phase'] == 'Finalization':
