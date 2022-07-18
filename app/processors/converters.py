@@ -564,13 +564,19 @@ class PolkascanHarvesterService(BaseService):
             event_idx = 0
 
             for event in events:
-                assert False, '%s %s' % (event.phase, event.phase.index)
-                assert False, '%s %s %s' % (type(event), event, list(event.value.items()))
+                phase = None
+                if event.value['phase'] == 'ApplyExtrinsic':
+                    phase = 0
+                elif event.value['phase'] == 'Finalization':
+                    phase = 1
+                elif event.value['phase'] == 'Initialization':
+                    phase = 2
+                assert phase is not None, event.value['phase']
                 event.value['module_id'] = event.value['module_id'].lower()
                 model = Event(
                     block_id=block_id,
                     event_idx=event_idx,
-                    phase=event.value['phase'],
+                    phase=phase,
                     extrinsic_idx=event.value['extrinsic_idx'],
                     type=event.value.get('event_index') or event.value.get('type'),
                     spec_version_id=parent_spec_version,
