@@ -651,6 +651,7 @@ class PolkascanHarvesterService(BaseService):
             # Lookup result of extrinsic
             extrinsic_success = extrinsic_success_idx.get(extrinsic_idx, False)
 
+            assert False, '%s  %s %s %s' % (dir(extrinsic), type(extrinsic), dir(extrinsics_decoder), type(extrinsics_decoder))
             if extrinsics_decoder.era:
                 era = extrinsics_decoder.era.raw_value
             else:
