@@ -58,21 +58,8 @@ class LogBlockProcessor(BlockProcessor):
 
             if log.type == 'PreRuntime':
                 if log.data['value']['engine'] == 'BABE':
-                    # Determine block producer
-                    babe_predigest_cls = RuntimeConfiguration().get_decoder_class('RawBabePreDigest')
-
-                    assert isinstance(log.data['value']['data'], str), log.data['value']['data']
-                    babe_predigest = babe_predigest_cls(
-                        ScaleBytes(bytearray.fromhex(log.data['value']['data'].replace('0x', '')))
-                    ).decode()
-
-                    if len(list(babe_predigest.values())) > 0:
-
-                        babe_predigest_value = list(babe_predigest.values())[0]
-
-                        log.data['value']['data'] = babe_predigest_value
-                        self.block.authority_index = log.data['value']['data']['authorityIndex']
-                        self.block.slot_number = log.data['value']['data']['slotNumber']
+                    self.block.authority_index = log.data['value']['data']['authority_index']
+                    self.block.slot_number = log.data['value']['data']['slot_number']
 
                 if log.data['value']['engine'] == 'aura':
                     aura_predigest_cls = RuntimeConfiguration().get_decoder_class('RawAuraPreDigest')
