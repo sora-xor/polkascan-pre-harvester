@@ -2,6 +2,5 @@
 
 def pipeline = new org.docker.AppPipeline(steps: this,
     dockerImageName: 'sora2/polkascan-pre-harvester',
-    dockerRegistryCred: 'bot-sora2-rw',
-    gitUpdateSubmodule: true)
+    dockerRegistryCred: 'bot-sora2-rw')
 pipeline.runPipeline()
