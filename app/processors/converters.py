@@ -657,7 +657,7 @@ class PolkascanHarvesterService(BaseService):
             model = Extrinsic(
                 block_id=block_id,
                 extrinsic_idx=extrinsic_idx,
-                extrinsic_hash=extrinsics_decoder.extrinsic_hash,
+                extrinsic_hash=extrinsic_data.get('extrinsic_hash'),
                 extrinsic_length=extrinsic_data.get('extrinsic_length'),
                 extrinsic_version=extrinsic_data.get('version_info'),
                 signed=extrinsics_decoder.signed,
