@@ -28,9 +28,9 @@ from sqlalchemy import func, distinct
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.harvester import Status
 from app.processors import NewSessionEventProcessor, Log, SlashEventProcessor, BalancesTransferProcessor
+from scalecodec.types import GenericExtrinsic
 from scalecodec.base import ScaleBytes, ScaleDecoder, RuntimeConfiguration
 from scalecodec.exceptions import RemainingScaleBytesNotEmptyException
-from scalecodec.block import ExtrinsicsDecoder
 
 from app.processors.base import BaseService, ProcessorRegistry
 from scalecodec.type_registry import load_type_registry_file
@@ -556,20 +556,30 @@ class PolkascanHarvesterService(BaseService):
             # TODO implemented solution in substrate interface for runtime transition blocks
             # Events are decoded against runtime of parent block
             RuntimeConfiguration().set_active_spec_version_id(parent_spec_version)
-            events_decoder = self.substrate.get_block_events(block_hash, self.metadata_store[parent_spec_version])
+            block_events = self.substrate.get_events(block_hash)
 
             # Revert back to current runtime
             RuntimeConfiguration().set_active_spec_version_id(block.spec_version_id)
 
             event_idx = 0
 
-            for event in events_decoder.elements:
-
+            for event in block_events:
+                try:
+                    print(event.value['phase'])
+                except Exception:
+                    assert False, event
+                if event.value['phase'] == 'ApplyExtrinsic':
+                    event.value['phase'] = 0
+                elif event.value['phase'] == 'Finalization':
+                    event.value['phase'] = 1
+                elif event.value['phase'] == 'Initialization':
+                    event.value['phase'] = 2
+                else:
+                    raise event.value['phase']
                 event.value['module_id'] = event.value['module_id'].lower()
-
                 model = Event(
                     block_id=block_id,
-                    event_idx=event_idx,
+                    event_idx=event_idx,    
                     phase=event.value['phase'],
                     extrinsic_idx=event.value['extrinsic_idx'],
                     type=event.value.get('event_index') or event.value.get('type'),
@@ -578,7 +588,7 @@ class PolkascanHarvesterService(BaseService):
                     event_id=event.value['event_id'],
                     system=int(event.value['module_id'] == 'system'),
                     module=int(event.value['module_id'] != 'system'),
-                    attributes=event.value['params'],
+                    attributes=event.value['attributes'],
                     codec_error=False
                 )
 
@@ -614,7 +624,7 @@ class PolkascanHarvesterService(BaseService):
 
                 event_idx += 1
 
-            block.count_events = len(events_decoder.elements)
+            block.count_events = len(events)
 
         except SubstrateRequestException:
             block.count_events = 0
@@ -631,7 +641,7 @@ class PolkascanHarvesterService(BaseService):
 
         for extrinsic in extrinsics_data:
 
-            extrinsics_decoder = ExtrinsicsDecoder(
+            extrinsics_decoder = GenericExtrinsic(
                 data=ScaleBytes(extrinsic),
                 metadata=self.metadata_store[parent_spec_version]
             )
