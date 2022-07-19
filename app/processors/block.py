@@ -61,6 +61,7 @@ class LogBlockProcessor(BlockProcessor):
                     # Determine block producer
                     babe_predigest_cls = RuntimeConfiguration().get_decoder_class('RawBabePreDigest')
 
+                    assert isinstance(log.data['value']['data'], str), log.data['value']['data']
                     babe_predigest = babe_predigest_cls(
                         ScaleBytes(bytearray.fromhex(log.data['value']['data'].replace('0x', '')))
                     ).decode()
