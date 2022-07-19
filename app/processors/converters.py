@@ -687,7 +687,7 @@ class PolkascanHarvesterService(BaseService):
             extrinsic_idx += 1
 
             # Process extrinsic
-            if extrinsics_decoder.contains_transaction:
+            if extrinsics_decoder.signed:
                 block.count_extrinsics_signed += 1
 
                 if model.signedby_address:
