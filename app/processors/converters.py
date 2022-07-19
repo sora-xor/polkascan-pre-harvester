@@ -651,11 +651,8 @@ class PolkascanHarvesterService(BaseService):
             # Lookup result of extrinsic
             extrinsic_success = extrinsic_success_idx.get(extrinsic_idx, False)
 
-            assert False, 'dir(extrinsics_decoder.value): %s\nextrinsics_decoder.value.items(): %s\nextrinsic_data: %s\nextrinsics_decoder.value_object: %s' % (dir(extrinsics_decoder.value), extrinsics_decoder.value.items(), extrinsic_data, extrinsics_decoder.value_object)
-            if extrinsics_decoder.era:
-                era = extrinsics_decoder.era.raw_value
-            else:
-                era = None
+            era = extrinsic_data.get('era')
+            assert era is None, era
 
             model = Extrinsic(
                 block_id=block_id,
