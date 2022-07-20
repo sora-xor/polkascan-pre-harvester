@@ -261,6 +261,10 @@ class PolkascanHarvesterService(BaseService):
             except Exception:
                 pass
             try:
+                print('264', self.substrate.metadata_decoder.value['V12']['modules'])
+            except Exception:
+                pass
+            try:
                 print(f'type: {type(self.substrate.metadata_decoder)}, metadata: {self.substrate.metadata_decoder}, dir: {dir(self.substrate.metadata_decoder)}')
                 # Store metadata in database
                 runtime = Runtime(
