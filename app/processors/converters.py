@@ -249,7 +249,7 @@ class PolkascanHarvesterService(BaseService):
 
             self.db_session.begin(subtransactions=True)
             try:
-                print(f'type: {type(self.substrate.metadata_decoder.metadata)}, metadata: {self.substrate.metadata_decoder.metadata}, dir: {dir(self.substrate.metadata_decoder.metadata)}')
+                print(f'type: {type(self.substrate.metadata_decoder)}, metadata: {self.substrate.metadata_decoder}, dir: {dir(self.substrate.metadata_decoder)}')
                 # Store metadata in database
                 runtime = Runtime(
                     id=spec_version,
