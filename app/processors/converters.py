@@ -303,7 +303,7 @@ class PolkascanHarvesterService(BaseService):
                     authoring_version=runtime_version_data["authoringVersion"],
                     count_call_functions=0,
                     count_events=0,
-                    count_modules=len(self.substrate.metadata_decoder.metadata.modules),
+                    count_modules=len(self.substrate.metadata_decoder.get_metadata()),
                     count_storage_functions=0,
                     count_constants=0,
                     count_errors=0
@@ -313,7 +313,7 @@ class PolkascanHarvesterService(BaseService):
 
                 print('store version to db', self.substrate.metadata_decoder.version)
 
-                for module_index, module in enumerate(self.substrate.metadata_decoder.metadata.modules):
+                for module_index, module in enumerate(self.substrate.metadata_decoder.get_metadata()):
 
                     if hasattr(module, 'index'):
                         module_index = module.index
