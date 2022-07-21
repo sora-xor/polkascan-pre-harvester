@@ -597,6 +597,7 @@ class PolkascanHarvesterService(BaseService):
             # TODO implemented solution in substrate interface for runtime transition blocks
             # Events are decoded against runtime of parent block
             RuntimeConfiguration().set_active_spec_version_id(parent_spec_version)
+            print(600)
             try:
                 block_events = self.substrate.get_events(block_hash)
             except NotImplementedError:
