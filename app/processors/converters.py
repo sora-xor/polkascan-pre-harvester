@@ -694,6 +694,9 @@ class PolkascanHarvesterService(BaseService):
             extrinsic_success = extrinsic_success_idx.get(extrinsic_idx, False)
 
             era = extrinsic_data.get('era')
+            print('era: %s' % era)
+            if era is not None:
+                print('era encoded: %s' % era.process_encode())
 
             model = Extrinsic(
                 block_id=block_id,
