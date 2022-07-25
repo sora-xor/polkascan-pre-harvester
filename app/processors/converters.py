@@ -594,7 +594,7 @@ class PolkascanHarvesterService(BaseService):
         events = []
 
         try:
-            print('597 current: %s, new: %s, type_registry: %s' % (RuntimeConfiguration().active_spec_version_id, parent_spec_version, self.substrate.type_registry.items()))
+            # print('597 current: %s, new: %s, type_registry: %s' % (RuntimeConfiguration().active_spec_version_id, parent_spec_version, self.substrate.type_registry.items()))
             # TODO implemented solution in substrate interface for runtime transition blocks
             # Events are decoded against runtime of parent block
             RuntimeConfiguration().set_active_spec_version_id(parent_spec_version)

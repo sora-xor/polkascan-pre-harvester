@@ -114,7 +114,7 @@ def accumulate_block_recursive(self, block_hash, end_block_hash=None):
 
     try:
 
-        for nr in range(0, 10):
+        for nr in range(0, 1000):
             if not block or block.id > 0:
                 # Process block
                 try:

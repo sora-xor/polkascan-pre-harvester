@@ -1,71 +1,255 @@
-version: '3.2'
+version: "2.4"
 
 services:
 
-  harvester-api:
-    build: .
-    image: &app polkascan-harvester
-    ports:
-      - '8000:8000'
-    volumes:
-      - '.:/usr/src/app'
+  explorer-api:
+    image: docker.soramitsu.co.jp/sora2/polkascan-pre-explorer-api:latest
     command: ./start.sh
-    environment: &env
+    environment:
+      - PYTHONPATH=/usr/src/app
+      - ENVIRONMENT=prod
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=PassWord1
+      - DB_NAME=polkascan
+      - SUBSTRATE_RPC_URL=https://rpc.framenode-1.v1.tst.sora2.soramitsu.co.jp
+      - SUBSTRATE_ADDRESS_TYPE=69
+      - TYPE_REGISTRY=default
+      - TYPE_REGISTRY_FILE=app/type_registry/custom_types.json
+      - SUBSTRATE_METADATA_VERSION=12
+    depends_on:
+      mysql:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    restart: always
+    mem_limit: "512m"
+    networks:
+      polkascan:
+
+  harvester-api:
+    image: local/harvester:local
+    build: .
+    healthcheck:
+      test: "curl localhost:8000/healthcheck | grep 'status\": \"OK'"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 300s
+    command: ./start.sh
+    environment:
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_BACKEND=redis://redis:6379/0
-      - PYTHONPATH=/usr/src/app
-      - ENVIRONMENT=dev
+      - PYTHONPATH=/usr/src/app:/usr/src/app/py-substrate-interface/:/usr/src/app/py-scale-codec/
+      - ENVIRONMENT=prod
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=PassWord1
+      - DB_NAME=polkascan
+      - SUBSTRATE_RPC_URL=https://rpc.framenode-1.v1.tst.sora2.soramitsu.co.jp
+      - TYPE_REGISTRY=default
+      - TYPE_REGISTRY_FILE=app/type_registry/custom_types.json
+      - SUBSTRATE_ADDRESS_TYPE=69
+      - SUBSTRATE_METADATA_VERSION=12
+      - NEW_SESSION_EVENT_HANDLER=True
+      - SUBSTRATE_STORAGE_BALANCE=Account
+      - SUBSTRATE_STORAGE_INDICES=Accounts
     depends_on:
-      - redis
-      - mysql
-      - substrate-node
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    restart: always
+    mem_limit: "512m"
+    networks:
+      polkascan:
 
   harvester-worker:
+    image: local/harvester:local
     build: .
-    image: *app
-    volumes:
-      - '.:/usr/src/app'
+    healthcheck:
+      test: celery inspect ping | grep pong
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 300s
     command: celery -A app.tasks worker --loglevel=INFO
-    environment: *env
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+      - PYTHONPATH=/usr/src/app:/usr/src/app/py-substrate-interface/:/usr/src/app/py-scale-codec/
+      - ENVIRONMENT=prod
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=PassWord1
+      - DB_NAME=polkascan
+      - SUBSTRATE_RPC_URL=https://rpc.framenode-1.v1.tst.sora2.soramitsu.co.jp
+      - TYPE_REGISTRY=default
+      - TYPE_REGISTRY_FILE=app/type_registry/custom_types.json
+      - SUBSTRATE_ADDRESS_TYPE=69
+      - SUBSTRATE_METADATA_VERSION=12
+      - NEW_SESSION_EVENT_HANDLER=True
+      - SUBSTRATE_STORAGE_BALANCE=Account
+      - SUBSTRATE_STORAGE_INDICES=Accounts
+      - FINALIZATION_ONLY=1
     depends_on:
-      - redis
-      - mysql
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    restart: always
+    mem_limit: "512m"
+    networks:
+      polkascan:
 
   harvester-beat:
+    image: local/harvester:local
     build: .
-    image: *app
+    healthcheck:
+      test: celery inspect ping | grep pong
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 300s
     volumes:
-      - '.:/usr/src/app'
+      - '/usr/src/app/data'
     command: celery -A app.tasks beat --loglevel=INFO  --schedule="data/celerybeat-schedule" --pidfile="data/celerybeat.pid"
-    environment: *env
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+      - PYTHONPATH=/usr/src/app:/usr/src/app/py-substrate-interface/:/usr/src/app/py-scale-codec/
+      - ENVIRONMENT=prod
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=PassWord1
+      - DB_NAME=polkascan
+      - SUBSTRATE_RPC_URL=https://rpc.framenode-1.v1.tst.sora2.soramitsu.co.jp
+      - TYPE_REGISTRY=default
+      - TYPE_REGISTRY_FILE=app/type_registry/custom_types.json
+      - SUBSTRATE_ADDRESS_TYPE=69
+      - SUBSTRATE_METADATA_VERSION=12
+      - NEW_SESSION_EVENT_HANDLER=True
+      - SUBSTRATE_STORAGE_BALANCE=Account
+      - SUBSTRATE_STORAGE_INDICES=Accounts
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    restart: always
+    mem_limit: "512m"
+    networks:
+      polkascan:
 
   harvester-monitor:
-    image: mher/flower
-    command: [ "--A app.tasks", "--broker=redis://redis:6379/0" ]
+    image: docker.soramitsu.co.jp/sora2/polkascan-flower:latest
+    entrypoint: ["celery", "--broker=redis://redis:6379/0", "flower", "-A app.tasks", "--basic_auth=NG6zuMN_PcgJqqvX3AF0okJeAzBF2EFn:rVfWpGJ5B7uWWv8pVdlLbXJkkzNWLaQM"]
     ports:
       - 5555:5555
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    restart: always
+    mem_limit: "512m"
+    networks:
+      polkascan:
+
 
   redis:
     image: redis:3.2.11
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: redis-cli ping | grep "PONG"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 300s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    restart: always
+    mem_limit: "1024m"
+    networks:
+      polkascan:
 
   mysql:
-    image: mysql:latest
+    image: mysql:8.0.23
+    healthcheck:
+      test: mysqladmin ping -h localhost -u root --password=PassWord1 | grep "alive"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 300s
+    cap_add:
+      - SYS_NICE
     volumes:
-      - './data/mysql:/var/lib/mysql'
-    ports:
-      - '33061:3306'
+      - '/opt/docker_data/polkascan/api-db:/var/lib/mysql'
     environment:
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=PassWord1
       - MYSQL_DATABASE=polkascan
+    command: --sort_buffer_size=1500M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    restart: always
+    mem_limit: "1024m"
+    networks:
+      polkascan:
 
-  substrate-node:
-    image: polkasource/substrate-alexander:latest
+  explorer-gui:
+    image: docker.soramitsu.co.jp/sora2/polkascan-pre-explorer-gui:latest
     ports:
-      - '30333:30333'
-      - '9933:9933'
-      - '9944:9944'
-    command: --dev --rpc-port 9933 --rpc-external --pruning=10000000
+      - 8080:80
+    healthcheck:
+      test: wget -qO- localhost
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 300s
+    volumes:
+      - "./env.json:/usr/share/nginx/html/env.json:ro"
+    depends_on:
+      - harvester-api
+      - explorer-api
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+    restart: always
+    mem_limit: "512m"
+    networks:
+      polkascan:
+
+networks:
+  polkascan:
