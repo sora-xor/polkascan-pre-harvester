@@ -128,7 +128,7 @@ def accumulate_block_recursive(self, block_hash, end_block_hash=None):
                         )
                     block = harvester.add_block(block_hash)
 
-                print('+ Added {} '.format(block_hash))
+                print('+ Added {} {}'.format(block_hash, nr))
 
                 add_count += 1
 
