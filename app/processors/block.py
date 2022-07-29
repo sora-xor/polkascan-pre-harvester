@@ -103,6 +103,8 @@ class BlockTotalProcessor(BlockProcessor):
         if parent_block_data and parent_block_data['datetime']:
             self.sequenced_block.parent_datetime = parent_block_data['datetime']
 
+            print('>>> sequencing_hook: block id = {}, block_dt = {}, parent_dt = {}'.format(self.block.id, self.block.datetime, parent_block_data['datetime']))
+
             if type(parent_block_data['datetime']) is str:
                 self.sequenced_block.blocktime = (self.block.datetime - dateutil.parser.parse(parent_block_data['datetime'])).total_seconds()
             else:

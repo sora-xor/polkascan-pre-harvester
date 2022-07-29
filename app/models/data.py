@@ -79,6 +79,9 @@ class Block(BaseModel):
     count_bridge_outcome = sa.Column(sa.Integer(), nullable=False)
 
     def set_datetime(self, datetime):
+        if datetime is None:
+            print('>>> set_datetime, datetime is None. id =  {}'.format(self.id))
+        
         self.datetime = datetime
         self.year = self.datetime.year
         self.month = self.datetime.month

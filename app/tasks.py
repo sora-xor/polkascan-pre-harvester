@@ -128,20 +128,17 @@ def accumulate_block_recursive(self, block_hash, end_block_hash=None):
                         )
                     block = harvester.add_block(block_hash)
 
-                print('+ Added {} {}'.format(block_hash, nr))
-
+                print('>>> nr {}'.format(nr))
                 add_count += 1
 
                 self.session.commit()
 
                 # Break loop if targeted end block hash is reached
                 if block_hash == end_block_hash or block.id == 0:
-                    print('138 break')
                     break
 
                 # Continue with parent block hash
                 block_hash = block.parent_hash
-        print('143 {}'.format(last_nr))
         # Update persistent metadata store in Celery task
         self.metadata_store = harvester.metadata_store
 

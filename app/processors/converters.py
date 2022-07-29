@@ -250,6 +250,8 @@ class PolkascanHarvesterService(BaseService):
             self.db_session.begin(subtransactions=True)
             try:
 
+                print('>>> Runtime modules {} {}'.format(self.substrate.metadata_decoder.metadata.modules, len(self.substrate.metadata_decoder.metadata.modules)))
+
                 # Store metadata in database
                 runtime = Runtime(
                     id=spec_version,
@@ -491,6 +493,8 @@ class PolkascanHarvesterService(BaseService):
         if not block_id.isnumeric():
             block_id = int(block_id, 16)
 
+        print('>>> Added block: id =  {}, hash = {}, runtime_ver = {}'.format(block_id, block_hash, self.substrate.runtime_version))
+        
         # ==== Get block runtime from Substrate ==================
 
         self.substrate.init_runtime(block_hash=block_hash)
