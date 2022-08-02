@@ -678,6 +678,7 @@ class PolkascanHarvesterService(BaseService):
                 error=int(not extrinsic_success),
                 codec_error=False
             )
+            print('extrinsic = {}, {}'.format(model, model.module_id))
             model.save(self.db_session)
 
             extrinsics.append(model)
