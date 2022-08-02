@@ -642,6 +642,8 @@ class PolkascanHarvesterService(BaseService):
 
             extrinsic_data = extrinsics_decoder.decode()
 
+            print('extrinsic_idx: {}, extrinsic_data: {}'.format(extrinsic_idx, extrinsic_data))
+
             # Lookup result of extrinsic
             extrinsic_success = extrinsic_success_idx.get(extrinsic_idx, False)
 
