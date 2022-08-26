@@ -1052,6 +1052,7 @@ class PolkascanHarvesterService(BaseService):
             self.db_session.commit()
 
     def create_full_asset_balance_snaphot(self, block_id):
+        print('>>>>> cfabs begin, block = {}'.format(block_id))
         block_hash = self.substrate.get_block_hash(block_id)
         # get balances storage prefix
         storage_key_prefix = self.substrate.generate_storage_hash(
@@ -1066,6 +1067,7 @@ class PolkascanHarvesterService(BaseService):
         # get all values
         start_key = None
         asset_balances = []
+        print('>>>>> loop start')
         while True:
             keys = self.substrate.rpc_request(
                 method="state_getKeysPaged",
@@ -1110,15 +1112,19 @@ class PolkascanHarvesterService(BaseService):
                 # end
                 break
             start_key = keys["result"][-1]
+        print('>>>>> loop end')
         # save to db
         if asset_balances:
             self.db_session.execute(
                 "truncate table {}".format(AssetBalance.__tablename__)
             )
             self.db_session.add_all(asset_balances)
+        
+        print('>>>>> cfabs end, block = {}'.format(block_id))
 
     def create_full_balance_snaphot(self, block_id):
 
+        print('>>>>> cfbs begin, block = {}'.format(block_id))
         block_hash = self.substrate.get_block_hash(block_id)
 
         # Determine if keys have Blake2_128Concat format so AccountId is stored in storage key
@@ -1131,6 +1137,7 @@ class PolkascanHarvesterService(BaseService):
         if storage_method:
             if storage_method.type['MapType']['hasher'] == "Blake2_128Concat":
 
+                print('>>>>> blake method')
                 # get balances storage prefix
                 storage_key_prefix = self.substrate.generate_storage_hash(
                     storage_module='System',
@@ -1138,19 +1145,29 @@ class PolkascanHarvesterService(BaseService):
                     metadata_version=settings.SUBSTRATE_METADATA_VERSION
                 )
 
+                print('>>>>> rpc request')
                 rpc_result = self.substrate.rpc_request(
                     'state_getKeys',
                     [storage_key_prefix, block_hash]
                 ).get('result')
+
+                print('>>>>> extract accounts')
                 # Extract accounts from storage key
                 accounts = [storage_key[-64:] for storage_key in rpc_result if len(storage_key) == 162]
+                print('>>>>> blake method end')
             else:
+                print('>>>>> not blake method')
                 # Retrieve accounts from database for legacy blocks
                 accounts = [account[0] for account in self.db_session.query(distinct(Account.id))]
+                print('>>>>> not blake method end')
 
+            print('>>>>> create balance snapshots')
             for account_id in accounts:
 
                 self.create_balance_snapshot(block_id=block_id, account_id=account_id, block_hash=block_hash)
+            print('>>>>> create balance snapshots end')
+
+        print('>>>>> cfbs end, block = {}'.format(block_id))
 
     def create_balance_snapshot(self, block_id, account_id, block_hash=None):
 
