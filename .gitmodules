@@ -1,6 +1,8 @@
 [submodule "py-substrate-interface"]
 	path = py-substrate-interface
 	url = https://github.com/sora-xor/py-substrate-interface.git
+	branch = test-debug2
 [submodule "py-scale-codec"]
 	path = py-scale-codec
 	url = https://github.com/sora-xor/py-scale-codec.git
+	branch = sora2

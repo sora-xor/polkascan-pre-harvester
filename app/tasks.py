@@ -398,16 +398,16 @@ def update_balances_in_block(self, block_id):
         type_registry_file=TYPE_REGISTRY_FILE
     )
 
-    print('>>>>> call create_full_balance_snaphot: cfbs')
+    print('>>>>> call create_full_balance_snaphot: cfbs, block = {}'.format(block_id))
     harvester.create_full_balance_snaphot(block_id)
-    print('>>>>> call create_full_asset_balance_snaphot: cfasb')
+    print('>>>>> call create_full_asset_balance_snaphot: cfasb, block = {}'.format(block_id))
     harvester.create_full_asset_balance_snaphot(block_id)
     print('>>>>> commit')
     self.session.commit()
 
-    print('>>>>> call update_account_balances')
+    print('>>>>> call update_account_balances, block = {}'.format(block_id))
     harvester.update_account_balances()
-    print('>>>>> call create_full_asset_balance_snaphot')
+    print('>>>>> call create_full_asset_balance_snaphot, block = {}'.format(block_id))
     self.session.commit()
     print('>>>>> update_balances_in_block end, block = {}'.format(block_id))
 
