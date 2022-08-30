@@ -1052,7 +1052,7 @@ class PolkascanHarvesterService(BaseService):
             self.db_session.commit()
 
     def create_full_asset_balance_snaphot(self, block_id):
-        print('>>>>> cfabs begin, block = {}'.format(block_id))
+        print('>>>>> ubib cfabs begin, block = {}'.format(block_id))
         block_hash = self.substrate.get_block_hash(block_id)
         # get balances storage prefix
         storage_key_prefix = self.substrate.generate_storage_hash(
@@ -1067,7 +1067,7 @@ class PolkascanHarvesterService(BaseService):
         # get all values
         start_key = None
         asset_balances = []
-        print('>>>>> loop start, block = {}'.format(block_id))
+        print('>>>>> ubib loop start, block = {}'.format(block_id))
         while True:
             keys = self.substrate.rpc_request(
                 method="state_getKeysPaged",
@@ -1112,7 +1112,7 @@ class PolkascanHarvesterService(BaseService):
                 # end
                 break
             start_key = keys["result"][-1]
-        print('>>>>> loop end, block = {}'.format(block_id))
+        print('>>>>> ubib loop end, block = {}'.format(block_id))
         # save to db
         if asset_balances:
             self.db_session.execute(
@@ -1120,11 +1120,11 @@ class PolkascanHarvesterService(BaseService):
             )
             self.db_session.add_all(asset_balances)
         
-        print('>>>>> cfabs end, block = {}'.format(block_id))
+        print('>>>>> ubib cfabs end, block = {}'.format(block_id))
 
     def create_full_balance_snaphot(self, block_id):
 
-        print('>>>>> cfbs begin, block = {}'.format(block_id))
+        print('>>>>> ubib cfbs begin, block = {}'.format(block_id))
         block_hash = self.substrate.get_block_hash(block_id)
 
         # Determine if keys have Blake2_128Concat format so AccountId is stored in storage key
@@ -1137,7 +1137,7 @@ class PolkascanHarvesterService(BaseService):
         if storage_method:
             if storage_method.type['MapType']['hasher'] == "Blake2_128Concat":
 
-                print('>>>>> blake method, block = {}'.format(block_id))
+                print('>>>>> ubib blake method, block = {}'.format(block_id))
                 # get balances storage prefix
                 storage_key_prefix = self.substrate.generate_storage_hash(
                     storage_module='System',
@@ -1145,39 +1145,39 @@ class PolkascanHarvesterService(BaseService):
                     metadata_version=settings.SUBSTRATE_METADATA_VERSION
                 )
 
-                print('>>>>> rpc request - state_getKeys: prefix = {}, block = {}, block hash = {}'.format(storage_key_prefix, block_id, block_hash))
+                print('>>>>> ubib rpc request - state_getKeys: prefix = {}, block = {}, block hash = {}'.format(storage_key_prefix, block_id, block_hash))
                 rpc_result = self.substrate.rpc_request(
                     'state_getKeys',
                     [storage_key_prefix, block_hash]
                 ).get('result')
 
-                print('>>>>> extract accounts, block = {}'.format(block_id))
+                print('>>>>> ubib extract accounts, block = {}'.format(block_id))
                 # Extract accounts from storage key
                 accounts = [storage_key[-64:] for storage_key in rpc_result if len(storage_key) == 162]
-                print('>>>>> blake method end, block = {}'.format(block_id))
+                print('>>>>> ubib blake method end, block = {}'.format(block_id))
             else:
-                print('>>>>> not blake method, block = {}'.format(block_id))
+                print('>>>>> ubib not blake method, block = {}'.format(block_id))
                 # Retrieve accounts from database for legacy blocks
                 accounts = [account[0] for account in self.db_session.query(distinct(Account.id))]
-                print('>>>>> not blake method end, block = {}'.format(block_id))
+                print('>>>>> ubib not blake method end, block = {}'.format(block_id))
 
-            print('>>>>> create balance snapshots, block = {}'.format(block_id))
+            print('>>>>> ubib create balance snapshots, block = {}'.format(block_id))
             for account_id in accounts:
 
                 self.create_balance_snapshot(block_id=block_id, account_id=account_id, block_hash=block_hash)
-            print('>>>>> create balance snapshots end, block = {}'.format(block_id))
+            print('>>>>> ubib create balance snapshots end, block = {}'.format(block_id))
 
-        print('>>>>> cfbs end, block = {}'.format(block_id))
+        print('>>>>> ubib cfbs end, block = {}'.format(block_id))
 
     def create_balance_snapshot(self, block_id, account_id, block_hash=None):
 
-        print('>>>>> create_balance_snapshot begin, block = {}'.format(block_id))
+        print('>>>>> ubib create_balance_snapshot begin, block = {}'.format(block_id))
         if not block_hash:
             block_hash = self.substrate.get_block_hash(block_id)
 
         # Get balance for account
         try:
-            print('>>>>> cbs get_runtime_state System::Account, block = {}, block hash = {}, account = 0x{}'.format(block_id, block_hash, account_id))
+            print('>>>>> ubib cbs get_runtime_state System::Account, block = {}, block hash = {}, account = 0x{}'.format(block_id, block_hash, account_id))
             account_info_data = self.substrate.get_runtime_state(
                 module='System',
                 storage_function='Account',
@@ -1185,12 +1185,12 @@ class PolkascanHarvesterService(BaseService):
                 block_hash=block_hash
             ).get('result')
 
-            print('>>>>> cbs delete, block = {}'.format(block_id))
+            print('>>>>> ubib cbs delete, block = {}'.format(block_id))
             # Make sure no rows inserted before processing this record
             AccountInfoSnapshot.query(self.db_session).filter_by(block_id=block_id, account_id=account_id).delete()
 
             if account_info_data:
-                print('>>>>> cbs has account_info_data, block = {}'.format(block_id))
+                print('>>>>> ubib cbs has account_info_data, block = {}'.format(block_id))
                 account_info_obj = AccountInfoSnapshot(
                     block_id=block_id,
                     account_id=account_id,
@@ -1201,7 +1201,7 @@ class PolkascanHarvesterService(BaseService):
                     nonce=account_info_data["nonce"]
                 )
             else:
-                print('>>>>> cbs has no account_info_data, block = {}'.format(block_id))
+                print('>>>>> ubib cbs has no account_info_data, block = {}'.format(block_id))
                 account_info_obj = AccountInfoSnapshot(
                     block_id=block_id,
                     account_id=account_id,
@@ -1212,13 +1212,13 @@ class PolkascanHarvesterService(BaseService):
                     nonce=None
                 )
 
-            print('>>>>> cbs save, block = {}'.format(block_id))
+            print('>>>>> ubib cbs save, block = {}'.format(block_id))
             account_info_obj.save(self.db_session)
-            print('>>>>> cbs save end, block = {}'.format(block_id))
+            print('>>>>> ubib cbs save end, block = {}'.format(block_id))
         except ValueError:
-            print('>>>>> cbs exception, block = {}'.format(block_id))
+            print('>>>>> ubib cbs exception, block = {}'.format(block_id))
             pass
-        print('>>>>> create_balance_snapshot end, block = {}'.format(block_id))
+        print('>>>>> ubib create_balance_snapshot end, block = {}'.format(block_id))
 
     def update_account_balances(self):
         # set balances according to most recent snapshot
