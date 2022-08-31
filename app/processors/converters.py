@@ -1191,15 +1191,11 @@ class PolkascanHarvesterService(BaseService):
 
     def create_balance_snapshot(self, block_id, account_id, block_hash=None, ubib_log=False):
 
-        if ubib_log:
-            print('>>>>> ubib create_balance_snapshot begin, block = {}'.format(block_id))
         if not block_hash:
             block_hash = self.substrate.get_block_hash(block_id)
 
         # Get balance for account
         try:
-            if ubib_log:
-                print('>>>>> ubib cbs get_runtime_state System::Account, block = {}, block hash = {}, account = 0x{}'.format(block_id, block_hash, account_id))
             account_info_data = self.substrate.get_runtime_state(
                 module='System',
                 storage_function='Account',
@@ -1207,14 +1203,10 @@ class PolkascanHarvesterService(BaseService):
                 block_hash=block_hash
             ).get('result')
 
-            if ubib_log:
-                print('>>>>> ubib cbs delete, block = {}'.format(block_id))
             # Make sure no rows inserted before processing this record
             AccountInfoSnapshot.query(self.db_session).filter_by(block_id=block_id, account_id=account_id).delete()
 
             if account_info_data:
-                if ubib_log:
-                    print('>>>>> ubib cbs has account_info_data, block = {}'.format(block_id))
                 account_info_obj = AccountInfoSnapshot(
                     block_id=block_id,
                     account_id=account_id,
@@ -1225,8 +1217,6 @@ class PolkascanHarvesterService(BaseService):
                     nonce=account_info_data["nonce"]
                 )
             else:
-                if ubib_log:
-                    print('>>>>> ubib cbs has no account_info_data, block = {}'.format(block_id))
                 account_info_obj = AccountInfoSnapshot(
                     block_id=block_id,
                     account_id=account_id,
@@ -1237,17 +1227,12 @@ class PolkascanHarvesterService(BaseService):
                     nonce=None
                 )
 
-            if ubib_log:
-                print('>>>>> ubib cbs save, block = {}'.format(block_id))
             account_info_obj.save(self.db_session)
             
-            if ubib_log:
-                print('>>>>> ubib cbs save end, block = {}'.format(block_id))
         except ValueError:
             if ubib_log:
-                print('>>>>> ubib cbs exception, block = {}'.format(block_id))
+                print('>>>>> ubib create_balance_snapshot exception, block = {}'.format(block_id))
             pass
-        print('>>>>> ubib create_balance_snapshot end, block = {}'.format(block_id))
 
     def update_account_balances(self):
         # set balances according to most recent snapshot
