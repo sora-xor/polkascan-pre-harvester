@@ -399,9 +399,9 @@ def update_balances_in_block(self, block_id):
     )
 
     print('>>>>> ubib call create_full_balance_snaphot: cfbs, block = {}'.format(block_id))
-    harvester.create_full_balance_snaphot(block_id)
+    harvester.create_full_balance_snaphot(block_id, True)
     print('>>>>> ubib call create_full_asset_balance_snaphot: cfasb, block = {}'.format(block_id))
-    harvester.create_full_asset_balance_snaphot(block_id)
+    harvester.create_full_asset_balance_snaphot(block_id, True)
     print('>>>>> ubib commit')
     self.session.commit()
 
